@@ -1,7 +1,7 @@
-using LinearAlgebra
+using LinearAlgebra, Random
 
-# Flappy-1 configuration
-const reds = Set([1, 8, 15, 16, 17, 22, 29, 7, 12, 13, 14, 21, 28, 35])
+# Flappy-1 original configuration
+# const reds = [1, 8, 15, 16, 17, 22, 29, 7, 12, 13, 14, 21, 28, 35]
 
 # Right and up
 function up(i, j)
@@ -31,7 +31,7 @@ end
 isWall(i, j) = i < 1 || i > 7 || j < 1 || j > 5
 
 # Recursively compute rewards matrix 
-function valuesolve(rr, rg, rs, γ)
+function valuesolve(rr, rg, rs, γ, reds)
     V = fill(0.0, 7, 5)
     for j ∈ 5:-1:1
         for i ∈ 7:-1:1
@@ -64,3 +64,21 @@ function trajectory(i, j, V)
     return path
 end
 
+# Experiment for different shading patterns
+function test(i, j, rr, rg, rs, γ)
+    reds = shuffle([1:31; 33:35])[1:10]
+    V = valuesolve(rr, rg, rs, γ, reds)
+    p = trajectory(i, j, V)
+    return p, V
+end
+
+# Sample test to check shortest path
+runs = 50
+rss = [-4, -1, 0, 1]
+pathlen = zeros(Int, runs, 4)
+for (l, c) in enumerate(rss)
+    for k in 1:runs
+        p, _ = test(2, 1, -5, 5, c, 0.9)
+        pathlen[k, l] = length(p)
+    end
+end
